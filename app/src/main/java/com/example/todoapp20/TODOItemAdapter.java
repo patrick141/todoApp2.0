@@ -11,14 +11,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.todoapp20.models.TODOItem;
+
 import java.util.List;
 
 public class TODOItemAdapter extends RecyclerView.Adapter<TODOItemAdapter.ViewHolder> {
-    List<String> items;
+    List<TODOItem> items;
     Context context;
     View.OnLongClickListener onLongClickListener;
 
-    public TODOItemAdapter(List<String> items, Context context) {
+    public TODOItemAdapter(List<TODOItem> items, Context context) {
         this.items = items;
         this.context = context;
     }
@@ -32,7 +34,7 @@ public class TODOItemAdapter extends RecyclerView.Adapter<TODOItemAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String item = items.get(position);
+        TODOItem item = items.get(position);
         holder.bind(item);
     }
 
@@ -41,7 +43,7 @@ public class TODOItemAdapter extends RecyclerView.Adapter<TODOItemAdapter.ViewHo
         return items.size();
     }
 
-    public void addAll(List<String> items){
+    public void addAll(List<TODOItem> items){
         this.items.addAll(items);
         notifyDataSetChanged();
     }
@@ -63,15 +65,15 @@ public class TODOItemAdapter extends RecyclerView.Adapter<TODOItemAdapter.ViewHo
             itemView.setOnLongClickListener(this);
         }
 
-        public void bind(String item) {
-            tvName.setText(item);
+        public void bind(TODOItem item) {
+            tvName.setText(item.getComment());
             status.setChecked(true);
         }
 
         @Override
         public void onClick(View view) {
             int position = getAdapterPosition();
-            String item = items.get(position);
+            TODOItem item = items.get(position);
             Intent intent = new Intent(context,EditActivity.class);
             context.startActivity(intent);
         }
@@ -80,10 +82,10 @@ public class TODOItemAdapter extends RecyclerView.Adapter<TODOItemAdapter.ViewHo
         @Override
         public boolean onLongClick(View view) {
             int position = getAdapterPosition();
-            String item = items.get(position);
+            TODOItem item = items.get(position);
             items.remove(item);
             notifyItemRemoved(position);
-            ((MainActivity) context).saveItems();
+            //((MainActivity) context).saveItems();
             return true;
         }
     }
