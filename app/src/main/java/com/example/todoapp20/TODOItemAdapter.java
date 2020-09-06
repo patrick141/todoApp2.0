@@ -11,30 +11,38 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.todoapp20.models.TODOItem;
-
 import java.util.List;
 
 public class TODOItemAdapter extends RecyclerView.Adapter<TODOItemAdapter.ViewHolder> {
-    List<TODOItem> items;
+    List<String> items;
     Context context;
-    View.OnLongClickListener onLongClickListener;
+    OnLongClickListener longClickListener;
+    OnClickListener onClickListener;
 
-    public TODOItemAdapter(List<TODOItem> items, Context context) {
+    public interface OnLongClickListener{
+        void onItemLongClicked(int position);
+    }
+    public interface OnClickListener{
+        void onItemClicked(int position);
+    }
+
+    public TODOItemAdapter(List<String> items, Context context, OnLongClickListener longClickListener, OnClickListener onClickListener) {
         this.items = items;
         this.context = context;
+        this.longClickListener = longClickListener;
+        this.onClickListener = onClickListener;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_todo_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        TODOItem item = items.get(position);
+        String item = items.get(position);
         holder.bind(item);
     }
 
@@ -43,7 +51,7 @@ public class TODOItemAdapter extends RecyclerView.Adapter<TODOItemAdapter.ViewHo
         return items.size();
     }
 
-    public void addAll(List<TODOItem> items){
+    public void addAll(List<String> items){
         this.items.addAll(items);
         notifyDataSetChanged();
     }
@@ -53,40 +61,31 @@ public class TODOItemAdapter extends RecyclerView.Adapter<TODOItemAdapter.ViewHo
         notifyDataSetChanged();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName;
-        CheckBox status;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvName = itemView.findViewById(R.id.tvName);
-            status = itemView.findViewById(R.id.checkbox);
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(this);
+            tvName = itemView.findViewById(android.R.id.text1);
         }
 
-        public void bind(TODOItem item) {
-            tvName.setText(item.getComment());
-            status.setChecked(true);
-        }
+        public void bind(String item) {
+            tvName.setText(item);
 
-        @Override
-        public void onClick(View view) {
-            int position = getAdapterPosition();
-            TODOItem item = items.get(position);
-            Intent intent = new Intent(context,EditActivity.class);
-            context.startActivity(intent);
-        }
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    longClickListener.onItemLongClicked(getAdapterPosition());
+                    return true;
+                }
+            });
 
-
-        @Override
-        public boolean onLongClick(View view) {
-            int position = getAdapterPosition();
-            TODOItem item = items.get(position);
-            items.remove(item);
-            notifyItemRemoved(position);
-            //((MainActivity) context).saveItems();
-            return true;
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickListener.onItemClicked(getAdapterPosition());
+                }
+            });
         }
     }
 }
